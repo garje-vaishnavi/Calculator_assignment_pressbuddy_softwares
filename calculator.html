@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Glassy Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #e0e0e0;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      width: 90vw;
+      max-width: 360px;
+      background: black;
+      padding: 20px;
+      border-radius: 16px;
+    }
+
+    input {
+      grid-column: span 4;
+      height: 60px;
+      font-size: 20px;
+      padding: 10px;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+    }
+
+    /* Default button */
+    .circle {
+      aspect-ratio: 1 / 1;
+      background: orange;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      color: black;
+      transition: transform 0.1s ease, background 0.2s ease;
+    }
+
+    .circle:active {
+      transform: scale(0.95);
+    }
+
+    /* Glassy gray buttons */
+    .gray-glass {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <input id="input1" type="text" placeholder="0" readonly>
+
+  <!-- Row 1 -->
+  <div class="circle" onclick="appendValue('7')">7</div>
+  <div class="circle" onclick="appendValue('8')">8</div>
+  <div class="circle" onclick="appendValue('9')">9</div>
+  <div class="circle gray-glass" onclick="deleteLast()">⌫</div>
+
+  <!-- Row 2 -->
+  <div class="circle" onclick="appendValue('4')">4</div>
+  <div class="circle" onclick="appendValue('5')">5</div>
+  <div class="circle" onclick="appendValue('6')">6</div>
+  <div class="circle gray-glass" onclick="appendValue('+')">+</div>
+
+  <!-- Row 3 -->
+  <div class="circle" onclick="appendValue('1')">1</div>
+  <div class="circle" onclick="appendValue('2')">2</div>
+  <div class="circle" onclick="appendValue('3')">3</div>
+  <div class="circle gray-glass" onclick="appendValue('-')">−</div>
+
+  <!-- Row 4 -->
+  <div class="circle" onclick="appendValue('0')">0</div>
+  <div class="circle" onclick="appendValue('.')">.</div>
+  <div class="circle gray-glass" onclick="appendValue('*')">×</div>
+  <div class="circle gray-glass" onclick="appendValue('/')">÷</div>
+
+  <!-- Row 5 -->
+  <div class="circle gray-glass" onclick="appendTrig('sin')">sin</div>
+  <div class="circle gray-glass" onclick="appendTrig('cos')">cos</div>
+  <div class="circle gray-glass" onclick="appendTrig('tan')">tan</div>
+  <div class="circle gray-glass" style="background-color: rgb(15, 59, 59);" onclick="calculate()">=</div>
+
+  <!-- Row 6 -->
+  <div class="circle gray-glass" onclick="clearAll()">AC</div>
+</div>
+
+<script>
+  let isResultDisplayed = false;
+
+  function appendValue(val) {
+    const input = document.getElementById('input1');
+
+    if (isResultDisplayed && /[0-9.]/.test(val)) {
+      input.value = '';
+      isResultDisplayed = false;
+    }
+
+    input.value += val;
+  }
+
+  function appendTrig(func) {
+    const input = document.getElementById('input1');
+
+    if (isResultDisplayed) {
+      input.value = '';
+      isResultDisplayed = false;
+    }
+
+    input.value += func;
+  }
+
+  function deleteLast() {
+    const input = document.getElementById('input1');
+    input.value = input.value.slice(0, -1);
+  }
+
+  function clearAll() {
+    const input = document.getElementById('input1');
+    input.value = '';
+    isResultDisplayed = false;
+  }
+
+  function calculate() {
+    const input = document.getElementById('input1');
+    const exp = input.value.replace(/\s/g, '');
+
+    const values = {
+      sin: { 0: 0, 30: 0.5, 45: 0.707, 60: 0.866, 90: 1 },
+      cos: { 0: 1, 30: 0.866, 45: 0.707, 60: 0.5, 90: 0 },
+      tan: { 0: 0, 30: 0.577, 45: 1, 60: 1.732 }
+    };
+
+    const match = exp.match(/^(sin|cos|tan)(\d+)$/);
+
+    if (match) {
+      const func = match[1];
+      const angle = match[2];
+
+      if (values[func][angle] !== undefined) {
+        input.value = values[func][angle];
+        isResultDisplayed = true;
+        return;
+      } else {
+        alert('Value not defined');
+        return;
+      }
+    }
+
+    try {
+      input.value = eval(exp);
+      isResultDisplayed = true;
+    } catch {
+      alert('Invalid Expression');
+    }
+  }
+</script>
+
+</body>
+</html>
